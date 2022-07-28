@@ -12,7 +12,7 @@ class Client:
         return requests.get(self.url)
 
 if __name__ == "__main__":
-    URL = "localhost:3000"
+    URL = "http://localhost:3000/data"
 
     c = Client(URL)
     c.send_data(data1=1,front="front",ten=10)
