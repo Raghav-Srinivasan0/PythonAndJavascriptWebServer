@@ -5,7 +5,7 @@ class Client:
     def __init__(self,serverurl):
         self.url = serverurl
     def send_data(self, **data):
-        response = requests.post(self.url + '/data', json = data)
+        response = requests.post(self.url + 'data', json = data)
         if response == "Received":
             return 0
         return 1
