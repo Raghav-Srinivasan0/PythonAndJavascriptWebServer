@@ -1,6 +1,7 @@
 const express = require('express')
 
 const app = express();
+var body = "";
 
 app.use(express.json({
     limit: "1mb",
@@ -8,9 +9,11 @@ app.use(express.json({
 app.listen(3000, () => console.log("listening at 3000"));
 
 app.post('/data', async function(request, response){
-    const body = request.body
-    app.get('/', function(request, response){
-        response.send(body)
+    body = request.body
+    app.get('/', function (req, res) {
+        res.send(body)
+        res.redirect("/")
     })
+    console.log(body)
     response.send('Received')
 })
