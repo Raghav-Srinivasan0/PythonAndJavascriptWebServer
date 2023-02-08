@@ -90,6 +90,7 @@ if __name__ == "__main__":
             data = filedata[filedata[1:].find("]")+4:-1]
             try:
                 with open(path, "x") as file:
+                    # Error: code turns one \r\n into 3 newlines
                     file.write(data.encode().decode('unicode_escape'))
             except Exception as e:
                 print("Error in recieving file. " + str(e))
