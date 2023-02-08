@@ -4,6 +4,7 @@ import os
 #import Crypto.Random
 #from Crypto.Cipher import AES
 import hashlib
+import socket
 
 '''
 # salt size in bytes
@@ -52,7 +53,19 @@ def decrypt(ciphertext, password):
 '''
 class Client:
     def __init__(self,serverurl):
+        self.index = -1
         self.url = serverurl
+        hostname=socket.gethostname()
+        IPAddr=socket.gethostbyname(hostname)
+        try:
+            ips_raw = requests.get(self.url + 'ips/')
+            ips = json.loads(ips_raw.text)['ip']
+            ips.append(IPAddr)
+            response = requests.post(self.url + 'ip/', json = {'ip': ips})
+            self.index = len(ips)-1
+        except Exception as e:
+            response = requests.post(self.url + 'ip/', json = {'ip': [IPAddr]})
+            self.index = 0
     def send_data(self, **data):
         response = requests.post(self.url + 'data/', json = data)
         if response == "Received":
@@ -67,6 +80,11 @@ class Client:
             return raw_data[var]
         except Exception as e:
             print("Couldn't get the requested variable: " + str(e))
+    def exit(self):
+        ips_raw = requests.get(self.url + 'ips/')
+        ips = json.loads(ips_raw.text)['ip']
+        ips[self.index] = -1
+        response = requests.post(self.url + 'ip/', json = {'ip': ips})
 
 if __name__ == "__main__":
     URL = "http://localhost:3000/"
@@ -95,5 +113,6 @@ if __name__ == "__main__":
             except Exception as e:
                 print("Error in recieving file. " + str(e))
         if command == "exit":
+            c.exit()
             break
     print(os.linesep)

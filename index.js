@@ -17,3 +17,13 @@ app.post('/data', async function(request, response){
     console.log(body)
     response.send('Received')
 })
+
+app.post('/ip', async function(request, response){
+    body = request.body
+    app.get("/ips", function(req,res) {
+        res.send(body)
+        res.redirect("/ips")
+    })
+    console.log(body)
+    response.send('Recieved')
+})
