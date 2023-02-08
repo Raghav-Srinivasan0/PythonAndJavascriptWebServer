@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 #import Crypto.Random
 #from Crypto.Cipher import AES
 import hashlib
@@ -72,7 +73,26 @@ if __name__ == "__main__":
 
     c = Client(URL)
     while True:
-        if input("sending or recieving: ") == "sending":
+        command = input("Command: ")
+        if command == "sending":
             c.send_data(message=input("Message: "))
-        else:
+        if command == "recieving":
             print(c.get_data_var("message"))
+        if command.find("file send ") != -1:
+            path = command[command.find("file send ")+10:]
+            with open(path, "rb") as file:
+                data = file.readlines()
+            data = b''.join(data)
+            c.send_data(file="[" + path + "]" + str(data))
+        if command == "file recieve":
+            filedata = c.get_data_var("file")
+            path = filedata[1:filedata[1:].find("]")+1]
+            data = filedata[filedata[1:].find("]")+4:-1]
+            try:
+                with open(path, "x") as file:
+                    file.write(data.encode().decode('unicode_escape'))
+            except Exception as e:
+                print("Error in recieving file. " + str(e))
+        if command == "exit":
+            break
+    print(os.linesep)
