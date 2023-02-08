@@ -115,4 +115,3 @@ if __name__ == "__main__":
         if command == "exit":
             c.exit()
             break
-    print(os.linesep)
