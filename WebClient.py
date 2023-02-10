@@ -57,6 +57,7 @@ class Client:
         self.url = serverurl
         hostname=socket.gethostname()
         IPAddr=socket.gethostbyname(hostname)
+        self.ipaddr = IPAddr
         try:
             ips_raw = requests.get(self.url + 'ips/')
             ips = json.loads(ips_raw.text)['ip']
@@ -67,7 +68,12 @@ class Client:
             response = requests.post(self.url + 'ip/', json = {'ip': [IPAddr]})
             self.index = 0
     def send_data(self, **data):
-        response = requests.post(self.url + 'data/', json = data)
+        try:
+            messages = self.get_data_var("message")
+        except Exception as e:
+            messages = []
+        messages.append(data["message"] + data['ip'])
+        response = requests.post(self.url + 'data/', json = {"message": messages})
         if response == "Received":
             return 0
         return 1
@@ -80,6 +86,21 @@ class Client:
             return raw_data[var]
         except Exception as e:
             print("Couldn't get the requested variable: " + str(e))
+    def get_data_ip(self):
+        data = self.get_data_var("message")
+        temp_messages = []
+        for i in data:
+            if i.rfind(self.ipaddr)!=-1:
+                temp_messages.append(i[:i.rfind(self.ipaddr)-len(self.ipaddr)])
+        return temp_messages
+    def get_ips(self):
+        ips_raw = requests.get(self.url + 'ips/')
+        ips = json.loads(ips_raw.text)['ip']
+        temp_ips = []
+        for i in ips:
+            if i != -1:
+                temp_ips.append(i)
+        return temp_ips
     def exit(self):
         ips_raw = requests.get(self.url + 'ips/')
         ips = json.loads(ips_raw.text)['ip']
@@ -93,7 +114,8 @@ if __name__ == "__main__":
     while True:
         command = input("Command: ")
         if command == "sending":
-            c.send_data(message=input("Message: "))
+            temp_ip = input("For (ip address): ")
+            c.send_data(message=input("Message: "),ip=temp_ip)
         if command == "recieving":
             print(c.get_data_var("message"))
         if command.find("file send ") != -1:
@@ -112,6 +134,8 @@ if __name__ == "__main__":
                     file.write(data.encode().decode('unicode_escape'))
             except Exception as e:
                 print("Error in recieving file. " + str(e))
+        if command == "ip list":
+            print(c.get_ips())
         if command == "exit":
             c.exit()
             break
